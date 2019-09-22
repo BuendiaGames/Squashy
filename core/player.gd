@@ -7,6 +7,21 @@ extends KinematicBody2D
 #different peers. 
 #Then, all rpc calls are meant to SEND information to CLIENTS from server.
 
+#Animation setup
+const VF_32 = 5 #VFrames of the 32x32 image
+const HF_32 = 4 #HFrames of the 32x32 image...
+const VF_50 = 2
+const HF_50 = 5
+
+const TEX32 = 0 #Tex identifier
+const TEX50 = 1
+
+#The textures themselves
+const tex_iguales = preload("res://graphics/character/sheet_iguales.png")
+const tex_grandes = preload("res://graphics/character/spritesheet_grandes.png")
+
+var anim = "idle"
+
 #Horizontal movement
 const speed = 20
 var vel = Vector2(0.0, 0.0)
@@ -28,6 +43,7 @@ var bullet_class = null
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	add_to_group("players")
+	update_texture(TEX32) #Set the default texture
 	bullet_class = preload("res://core/bullet.tscn")
 	set_process(get_tree().is_network_server())
 
@@ -38,12 +54,15 @@ func _process(delta):
 		dir = current_action
 		vel.x = speed * current_action
 		move_and_slide(vel, global_c.FL_NORMAL)
+		change_anim("run")
 	elif current_action == global_c.JUMP:
 		vel.y = -jumpspeed
 		in_air = true
+		change_anim("jump_start")
 		set_action(global_c.IDLE)
 	elif current_action == global_c.IDLE:
 		vel.x = 0.0
+		change_anim("idle")
 	
 	if in_air:
 		vel.y += delta * g
@@ -51,6 +70,7 @@ func _process(delta):
 		#TODO: check floor collision
 	else:
 		vel.y = 0.0
+		change_anim("jump_landing")
 	
 	in_air = not is_on_floor()
 
@@ -94,3 +114,21 @@ func send_pos(id):
 
 remote func set_pos(new_pos):
 	position = new_pos
+
+
+#Animation controller
+func change_anim(new_anim):
+	if anim != new_anim:
+		anim = new_anim
+		$anim.play(anim)
+
+#Set correct texture and animation properties
+func update_texture(tex):
+	if (tex == TEX32):
+		$sprite.texture = tex_iguales
+		$sprite.hframes = HF_32
+		$sprite.vframes = VF_32
+	else:
+		$sprite.texture = tex_grandes
+		$sprite.hframes = HF_50
+		$sprite.vframes = VF_50
