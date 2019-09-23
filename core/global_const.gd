@@ -9,6 +9,7 @@ const IDLE = 0
 const LEFT = -1
 const RIGHT = 1
 const JUMP = 2
+const NOTHING = 3
 
 const TEAM_A = 0
 const TEAM_B = 1

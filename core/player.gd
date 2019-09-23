@@ -49,30 +49,36 @@ func _ready():
 
 func _process(delta):
 	
+	in_air = not is_on_floor()
+	
 	#Process actions
 	if current_action == global_c.LEFT or current_action == global_c.RIGHT:
 		dir = current_action
 		vel.x = speed * current_action
-		move_and_slide(vel, global_c.FL_NORMAL)
-		change_anim("run")
+		$sprite.flip_h = dir == global_c.RIGHT
+		if not in_air:
+			change_anim("run")
 	elif current_action == global_c.JUMP:
 		vel.y = -jumpspeed
 		in_air = true
 		change_anim("jump_start")
-		set_action(global_c.IDLE)
+		set_action(global_c.NOTHING)
 	elif current_action == global_c.IDLE:
 		vel.x = 0.0
 		change_anim("idle")
 	
 	if in_air:
 		vel.y += delta * g
-		move_and_slide(vel, global_c.FL_NORMAL)
-		#TODO: check floor collision
+		if vel.y > 5 * delta * g:
+			change_anim("jump_air")
 	else:
-		vel.y = 0.0
-		change_anim("jump_landing")
+		if vel.y > 5 * delta * g:
+			change_anim("jump_landing")
+		vel.y = 0
 	
-	in_air = not is_on_floor()
+	move_and_slide(vel, global_c.FL_NORMAL)
+	
+
 
 #Shoot a bullet in every peer
 func shoot():
@@ -118,6 +124,8 @@ remote func set_pos(new_pos):
 
 #Animation controller
 func change_anim(new_anim):
+	print(anim)
+	print(new_anim)
 	if anim != new_anim:
 		anim = new_anim
 		$anim.play(anim)
