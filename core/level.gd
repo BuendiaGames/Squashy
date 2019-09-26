@@ -4,6 +4,8 @@ var network = null
 var selfID = null
 var player = null
 
+#To avoid continuous firing
+var shoot_released = true
 
 #Pause game
 func _ready():
@@ -61,10 +63,22 @@ func _input(event):
 		player.current_action = global_c.JUMP
 		rpc_id(1, "send_action", selfID, global_c.JUMP)
 	
+	#Concentrate
+	if event.is_action_pressed("ui_down"):
+		player.current_action = global_c.CHARGE
+		rpc_id(1, "send_action", selfID, global_c.CHARGE)
+	elif event.is_action_released("ui_down") and player.current_action == global_c.CHARGE:
+		player.current_action = global_c.IDLE
+		rpc_id(1, "send_action", selfID, global_c.IDLE)
+	
 	#Shoot
-	if event.is_action_pressed("shoot"):
+	if event.is_action_pressed("shoot") and shoot_released:
 		player.shoot()
-		#rpc_id(1, "send_shoot", selfID)
+		shoot_released = false
+	elif event.is_action_released("shoot"):
+		shoot_released = true
+	
+
 
 
 func get_player(id):

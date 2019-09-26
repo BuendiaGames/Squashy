@@ -1,13 +1,17 @@
-[gd_scene load_steps=3 format=2]
+[gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://core/bullet.gd" type="Script" id=1]
+[ext_resource path="res://graphics/character/Disparo_bala.png" type="Texture" id=2]
 
 [sub_resource type="CircleShape2D" id=1]
-radius = 16.0
+radius = 3.87445
 
 [node name="bullet" type="Area2D"]
 script = ExtResource( 1 )
 
 [node name="shape" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )
+
+[node name="sprite" type="Sprite" parent="."]
+texture = ExtResource( 2 )
 [connection signal="body_entered" from="." to="." method="_on_bullet_body_entered"]

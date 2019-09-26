@@ -1,8 +1,9 @@
-[gd_scene load_steps=15 format=2]
+[gd_scene load_steps=16 format=2]
 
 [ext_resource path="res://core/player.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Comfortaa-Bold.ttf" type="DynamicFontData" id=2]
-[ext_resource path="res://graphics/character/sheet_iguales.png" type="Texture" id=3]
+[ext_resource path="res://core/red_material.tres" type="Material" id=3]
+[ext_resource path="res://graphics/character/sheet_iguales.png" type="Texture" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 16, 16 )
@@ -10,8 +11,7 @@ extents = Vector2( 16, 16 )
 [sub_resource type="DynamicFont" id=2]
 font_data = ExtResource( 2 )
 
-[sub_resource type="Animation" id=3]
-resource_name = "boom"
+[sub_resource type="Animation" id=5]
 length = 0.5
 step = 0.05
 tracks/0/type = "value"
@@ -27,8 +27,7 @@ tracks/0/keys = {
 "values": [ 0, 1, 2, 3, 4, 9 ]
 }
 
-[sub_resource type="Animation" id=4]
-resource_name = "create"
+[sub_resource type="Animation" id=6]
 length = 0.12
 loop = true
 step = 0.06
@@ -45,8 +44,7 @@ tracks/0/keys = {
 "values": [ 4, 5 ]
 }
 
-[sub_resource type="Animation" id=5]
-resource_name = "idle"
+[sub_resource type="Animation" id=7]
 length = 0.4
 loop = true
 step = 0.2
@@ -63,8 +61,7 @@ tracks/0/keys = {
 "values": [ 12, 13 ]
 }
 
-[sub_resource type="Animation" id=6]
-resource_name = "jump_air"
+[sub_resource type="Animation" id=8]
 length = 0.2
 loop = true
 tracks/0/type = "value"
@@ -80,8 +77,7 @@ tracks/0/keys = {
 "values": [ 18, 19 ]
 }
 
-[sub_resource type="Animation" id=7]
-resource_name = "jump_landing"
+[sub_resource type="Animation" id=9]
 length = 0.3
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
@@ -96,8 +92,7 @@ tracks/0/keys = {
 "values": [ 16, 17, 16 ]
 }
 
-[sub_resource type="Animation" id=8]
-resource_name = "jump_start"
+[sub_resource type="Animation" id=10]
 length = 0.2
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
@@ -112,8 +107,7 @@ tracks/0/keys = {
 "values": [ 16, 17 ]
 }
 
-[sub_resource type="Animation" id=9]
-resource_name = "plop"
+[sub_resource type="Animation" id=11]
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
 tracks/0/interp = 1
@@ -127,7 +121,7 @@ tracks/0/keys = {
 "values": [ 5, 6, 7, 8, 9 ]
 }
 
-[sub_resource type="Animation" id=10]
+[sub_resource type="Animation" id=12]
 length = 0.3
 loop = true
 tracks/0/type = "value"
@@ -143,7 +137,7 @@ tracks/0/keys = {
 "values": [ 0, 1, 2 ]
 }
 
-[sub_resource type="Animation" id=11]
+[sub_resource type="Animation" id=13]
 length = 0.32
 step = 0.08
 tracks/0/type = "value"
@@ -174,22 +168,23 @@ custom_fonts/font = SubResource( 2 )
 text = "Nick"
 
 [node name="sprite" type="Sprite" parent="."]
-texture = ExtResource( 3 )
+material = ExtResource( 3 )
+texture = ExtResource( 4 )
 vframes = 5
 hframes = 4
 frame = 5
 
 [node name="anim" type="AnimationPlayer" parent="."]
 autoplay = "idle"
-anims/boom = SubResource( 3 )
-anims/create = SubResource( 4 )
-anims/idle = SubResource( 5 )
-anims/jump_air = SubResource( 6 )
-anims/jump_landing = SubResource( 7 )
-anims/jump_start = SubResource( 8 )
-anims/plop = SubResource( 9 )
-anims/run = SubResource( 10 )
-anims/shoot = SubResource( 11 )
+anims/boom = SubResource( 5 )
+anims/create = SubResource( 6 )
+anims/idle = SubResource( 7 )
+anims/jump_air = SubResource( 8 )
+anims/jump_landing = SubResource( 9 )
+anims/jump_start = SubResource( 10 )
+anims/plop = SubResource( 11 )
+anims/run = SubResource( 12 )
+anims/shoot = SubResource( 13 )
 next/jump_landing = "idle"
 next/jump_start = "jump_air"
 next/shoot = "idle"

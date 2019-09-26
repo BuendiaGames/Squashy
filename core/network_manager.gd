@@ -43,7 +43,8 @@ master func check_game_id(gid, peer_info):
 		player_info[id] = peer_info
 	else:
 		print("Bad pass")
-		get_tree().network_peer.disconnect_peer(id, true)
+		#get_tree().network_peer.disconnect_peer(id, true)
+		disconnect_from_server(id)
 
 
 #Set up the server
@@ -78,6 +79,13 @@ func connection_request(code, ip):
 		gameID = code.strip_edges()
 	return err
 
+#Terminates the connection from server
+func disconnect_from_server(id):
+	if get_tree().is_network_server():
+		get_tree().network_peer.disconnect_peer(id, true)
+		print("here")
+
+
 
 # ---------------------------------------------------- #
 # Lobby / Connection events
@@ -101,7 +109,7 @@ func _player_disconnected(id):
 	
 	#If a player disconnects during a game, free its node
 	if scene.name == "level":
-		scene.get_node("players/" + str(id)).free() 
+		scene.get_node("players/" + str(id)).queue_free() 
 	
 	print("Bye " + str(id))
 
