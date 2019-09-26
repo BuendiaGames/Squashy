@@ -25,9 +25,13 @@ func get_main_player():
 #If this is the server, then send info to everybody
 #TODO: then can process be set to false in clients????
 func _process(delta):
-	for id in network.player_info:
-		var peer = get_player(id)
-		peer.send_pos(id)
+	if get_tree().is_network_server():
+		for id in network.player_info:
+			var peer = get_player(id)
+			peer.send_pos()
+
+
+
 
 #Send movement action for the sender id
 remote func send_action(sender_id, action):

@@ -164,7 +164,8 @@ func set_team(new_team):
 
 remotesync func configure_team(new_team):
 	team = new_team
-	$sprite.material = preload("res://core/red_material.tres")
+	if (new_team == global_c.TEAM_B):
+		$sprite.material = preload("res://core/red_material.tres")
 
 #This pair of functions change the current action.
 #It does it locally (in server) and remotely (in clients)
@@ -175,11 +176,11 @@ remotesync func set_player_action(action):
 	current_action = action
 
 #This pair of functions update the state of the player
-func send_pos(id):
-	rset_unreliable_id(id, "in_air", in_air)
-	rpc_unreliable_id(id, "set_pos", position)
+func send_pos():
+	rset_unreliable("in_air", in_air)
+	rpc_unreliable("set_pos", position)
 
-remote func set_pos(new_pos):
+remotesync func set_pos(new_pos):
 	position = new_pos
 
 

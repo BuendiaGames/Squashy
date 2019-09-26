@@ -42,13 +42,13 @@ func _deferred_goto_scene(path):
 		player.position = Vector2(100.0 + 20*j, 100.0)
 		#Set team and nick based on the info we received
 		player.get_node("nick").text = network.player_info[p]["nick"]
+		#player.set_network_master(str(p))
+		get_node("/root/" + current_scene.name + "/players").add_child(player)
 		if (j % 2 == 0):
 			player.set_team(global_c.TEAM_A)
 		else:
 			player.set_team(global_c.TEAM_B)
 		j += 1
-		#player.set_network_master(str(p))
-		get_node("/root/" + current_scene.name + "/players").add_child(player)
 	
 	var ch = get_node("/root/" + current_scene.name + "/players").get_children()
 	
