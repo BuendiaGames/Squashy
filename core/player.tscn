@@ -11,7 +11,7 @@ extents = Vector2( 16, 16 )
 [sub_resource type="DynamicFont" id=2]
 font_data = ExtResource( 2 )
 
-[sub_resource type="Animation" id=5]
+[sub_resource type="Animation" id=3]
 length = 0.5
 step = 0.05
 tracks/0/type = "value"
@@ -27,7 +27,7 @@ tracks/0/keys = {
 "values": [ 0, 1, 2, 3, 4, 9 ]
 }
 
-[sub_resource type="Animation" id=6]
+[sub_resource type="Animation" id=4]
 length = 0.12
 loop = true
 step = 0.06
@@ -44,7 +44,7 @@ tracks/0/keys = {
 "values": [ 4, 5 ]
 }
 
-[sub_resource type="Animation" id=7]
+[sub_resource type="Animation" id=5]
 length = 0.4
 loop = true
 step = 0.2
@@ -61,7 +61,7 @@ tracks/0/keys = {
 "values": [ 12, 13 ]
 }
 
-[sub_resource type="Animation" id=8]
+[sub_resource type="Animation" id=6]
 length = 0.2
 loop = true
 tracks/0/type = "value"
@@ -77,7 +77,7 @@ tracks/0/keys = {
 "values": [ 18, 19 ]
 }
 
-[sub_resource type="Animation" id=9]
+[sub_resource type="Animation" id=7]
 length = 0.3
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
@@ -92,7 +92,7 @@ tracks/0/keys = {
 "values": [ 16, 17, 16 ]
 }
 
-[sub_resource type="Animation" id=10]
+[sub_resource type="Animation" id=8]
 length = 0.2
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
@@ -107,7 +107,7 @@ tracks/0/keys = {
 "values": [ 16, 17 ]
 }
 
-[sub_resource type="Animation" id=11]
+[sub_resource type="Animation" id=9]
 tracks/0/type = "value"
 tracks/0/path = NodePath("sprite:frame")
 tracks/0/interp = 1
@@ -121,7 +121,7 @@ tracks/0/keys = {
 "values": [ 5, 6, 7, 8, 9 ]
 }
 
-[sub_resource type="Animation" id=12]
+[sub_resource type="Animation" id=10]
 length = 0.3
 loop = true
 tracks/0/type = "value"
@@ -137,7 +137,7 @@ tracks/0/keys = {
 "values": [ 0, 1, 2 ]
 }
 
-[sub_resource type="Animation" id=13]
+[sub_resource type="Animation" id=11]
 length = 0.32
 step = 0.08
 tracks/0/type = "value"
@@ -176,15 +176,15 @@ frame = 5
 
 [node name="anim" type="AnimationPlayer" parent="."]
 autoplay = "idle"
-anims/boom = SubResource( 5 )
-anims/create = SubResource( 6 )
-anims/idle = SubResource( 7 )
-anims/jump_air = SubResource( 8 )
-anims/jump_landing = SubResource( 9 )
-anims/jump_start = SubResource( 10 )
-anims/plop = SubResource( 11 )
-anims/run = SubResource( 12 )
-anims/shoot = SubResource( 13 )
+anims/boom = SubResource( 3 )
+anims/create = SubResource( 4 )
+anims/idle = SubResource( 5 )
+anims/jump_air = SubResource( 6 )
+anims/jump_landing = SubResource( 7 )
+anims/jump_start = SubResource( 8 )
+anims/plop = SubResource( 9 )
+anims/run = SubResource( 10 )
+anims/shoot = SubResource( 11 )
 next/jump_landing = "idle"
 next/jump_start = "jump_air"
 next/shoot = "idle"

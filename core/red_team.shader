@@ -10,7 +10,7 @@ void fragment() {
 	
 	vec4 curr_color = texture(TEXTURE,UV); // Get current color of pixel
 	
-	if (curr_color.b == 1.0)
+	if (curr_color.b == 1.0 && curr_color.r < 1.0)
 	{
 		COLOR = vec4(1.0, 145.0/255.0, 72.0/255.0, 1.0);
 	}

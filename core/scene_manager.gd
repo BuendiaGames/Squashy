@@ -44,6 +44,10 @@ func _deferred_goto_scene(path):
 		player.get_node("nick").text = network.player_info[p]["nick"]
 		#player.set_network_master(str(p))
 		get_node("/root/" + current_scene.name + "/players").add_child(player)
+		
+		print(p)
+		print(j)
+		
 		if (j % 2 == 0):
 			player.set_team(global_c.TEAM_A)
 		else:

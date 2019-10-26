@@ -32,9 +32,9 @@ func _on_bullet_body_entered(body):
 	#TODO add damage/recover depending on team
 	if body.is_in_group("players"):
 		if sender_team != body.team:
-			body.damage(20.0)
+			body.damage(10.0)
 		else:
-			body.recover(20.0)
+			body.recover(10.0)
 	elif body.is_in_group("walls"):
 		body.damage(damage)
 	

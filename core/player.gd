@@ -160,12 +160,11 @@ remotesync func do_recov_net(r):
 
 #Configure the team and set the adequate recolor!
 func set_team(new_team):
-	rpc("configure_team", new_team)
-
-remotesync func configure_team(new_team):
 	team = new_team
 	if (new_team == global_c.TEAM_B):
 		$sprite.material = preload("res://core/red_material.tres")
+	else:
+		$sprite.material = null
 
 #This pair of functions change the current action.
 #It does it locally (in server) and remotely (in clients)
