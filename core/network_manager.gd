@@ -11,7 +11,12 @@ var peer = null
 
 #Information about all peers
 remote var player_info = {}
-var my_info = {}  #Structure: name / team / squasy class
+
+
+#Info of each peer. Fields:
+#nick: player nick
+#team: current team
+var my_info = {"nick": "", "team":0} 
 
 #Maximum number of players allowed in the game
 const MAX_PLAYERS = 4
@@ -40,7 +45,7 @@ master func check_game_id(gid, peer_info):
 	
 	if int(gameID) == int(gid):
 		print("Good connection")
-		player_info[id] = peer_info
+		player_info[id] = peer_info #For now, only NICK is inside
 	else:
 		print("Bad pass")
 		#get_tree().network_peer.disconnect_peer(id, true)
@@ -81,9 +86,11 @@ func connection_request(code, ip):
 
 #Terminates the connection from server
 func disconnect_from_server(id):
+	
 	if get_tree().is_network_server():
 		get_tree().network_peer.disconnect_peer(id, true)
 		print("here")
+	
 
 
 
@@ -104,13 +111,6 @@ func _player_disconnected(id):
 	
 	#Erase information about this player
 	player_info.erase(id)
-	
-	var scene = scene_manager.current_scene
-	
-	#If a player disconnects during a game, free its node
-	if scene.name == "level":
-		scene.get_node("players/" + str(id)).queue_free() 
-	
 	print("Bye " + str(id))
 
 #Validate GID with the one stored at server
@@ -132,8 +132,27 @@ func _on_server_disconnection():
 # ---------------------------------------------------- #
 
 #Set the player info for everybody
-func share_player_info():
+remote func share_player_info():
 	rset("player_info", player_info)
+	print("Sending info to players from server")
+	print(player_info)
+
+#Send a request to update info to server
+func request_update_info():
+	if not get_tree().is_network_server():
+		rpc_id(1, "update_info", my_info)
+	
+
+#Server answers with new info to all peers
+remote func update_info(new_info):
+	#Should be always true due to rpc_id=1, but double-check it
+	var id = get_tree().get_rpc_sender_id()
+	print("Request from " + str(id) + ": change player_info to")
+	print(new_info)
+	player_info[id] = new_info
+	print(player_info[id])
+	share_player_info()
+
 
 #Load a new scene, leaving it in pause
 func load_level(path):

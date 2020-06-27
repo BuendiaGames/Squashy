@@ -172,7 +172,7 @@ material = ExtResource( 3 )
 texture = ExtResource( 4 )
 vframes = 5
 hframes = 4
-frame = 5
+frame = 9
 
 [node name="anim" type="AnimationPlayer" parent="."]
 autoplay = "idle"
@@ -188,3 +188,5 @@ anims/shoot = SubResource( 11 )
 next/jump_landing = "idle"
 next/jump_start = "jump_air"
 next/shoot = "idle"
+[connection signal="tree_exited" from="." to="." method="_on_player_tree_exited"]
+[connection signal="tree_exiting" from="." to="." method="_on_player_tree_exiting"]

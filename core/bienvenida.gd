@@ -9,8 +9,8 @@ var manager = null
 func _ready():
 	
 	#Get the network/scene manager
-	network = get_node("/root/network_manager")
-	manager = get_node("/root/scene_manager")
+	network = network_manager
+	manager = scene_manager
 	
 	#And then choose client or server
 	if OS.get_name() == "HTML5":
@@ -50,22 +50,29 @@ func init_server_screen():
 	#Wait for the players
 	set_process(true)
 
+
+#Show client data
 func init_client_screen():
-	#Show client data
 	$background/server.hide()
 	$background/client.show()
 
+#When the button is pressed, connect...
 func _on_clnt_connect_pressed():
+	
+	#Get our data
 	var name = $background/client/name_edit.text
 	var code = $background/client/code_edit.text
 	var ip = $background/client/ip_edit.text
 	
 	network.my_info["nick"] = name
 	
+	#Try to connect
 	if network.connection_request(code, ip) != OK:
 		$background/client/status.text = "Error connecting server"
 	else:
 		$background/client/status.text = "Connected"
+
+
 
 #Starts the game
 func _on_startgame_pressed():

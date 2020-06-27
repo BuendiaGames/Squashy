@@ -9,7 +9,7 @@ var selfID = 0
 
 #Load the network manager and start 
 func _ready():
-	network = get_node("/root/network_manager")
+	network = network_manager
 	var root = get_tree().get_root()
 	current_scene = root.get_child(root.get_child_count() - 1)
 
@@ -40,9 +40,12 @@ func _deferred_goto_scene(path):
 		var player = playerscene.instance()
 		player.name = str(p)
 		player.position = Vector2(100.0 + 20*j, 100.0)
+		print("!!! " + str(p) + " " + str(selfID) + " " + str(p-selfID))
+		player.should_process = p == selfID and not get_tree().is_network_server()
+		
 		#Set team and nick based on the info we received
 		player.get_node("nick").text = network.player_info[p]["nick"]
-		#player.set_network_master(str(p))
+		
 		get_node("/root/" + current_scene.name + "/players").add_child(player)
 		
 		print(p)
@@ -61,10 +64,11 @@ func _deferred_goto_scene(path):
 	
 	print("!")
 	
-	current_scene.get_main_player()
+	if not get_tree().is_network_server():
+		current_scene.get_main_player()
 	
 	#Register that this peer has finished
 	network.send_scene_loaded(selfID)
-
+	
 
 

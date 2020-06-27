@@ -3,7 +3,6 @@ extends Area2D
 remotesync var team = global_c.TEAM_0
 remotesync var color = global_c.TA_COLOR
 
-
 func _ready():
 	pass 
 
@@ -26,22 +25,12 @@ remotesync func change_color(c):
 #When you enter the water, and are a player, 
 #register water inside player. Then recover if it is our team
 func _on_water_body_entered(body):
-	
-	if body.is_in_group("players") and get_tree().is_network_server():
-		
-		print("inside")
-		
-		body.in_water = true
-		body.water_contact = self
-		
-		if team == body.team:
-			print("recovering...")
-			body.recover(0.001)
+	if get_tree().is_network_server():
+		if body.is_in_group("players"): 
+			body.enter_water(team, name)
 
 #Make information about water vanish
 func _on_water_body_exited(body):
-	
-	if body.is_in_group("players") and get_tree().is_network_server():
-		body.in_water = false
-		body.water_contact = null
-
+	if get_tree().is_network_server():
+		if body.is_in_group("players"):
+			body.exit_water()

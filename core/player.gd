@@ -1,11 +1,10 @@
 extends KinematicBody2D
 
 
-#Player code. Player is processed in server, receiving 
-#all the input from the "level" scene; this is because only
-#one squashy is to be controlled from player -others are from
-#different peers. 
-#Then, all rpc calls are meant to SEND information to CLIENTS from server.
+#Player code. Player sends its info to all the other
+#peers, updating its info to the network.
+
+var should_process = false
 
 #Animation setup
 const VF_32 = 5 #VFrames of the 32x32 image
@@ -23,21 +22,19 @@ const tex_grandes = preload("res://graphics/character/spritesheet_grandes.png")
 var anim = "idle"
 
 #Horizontal movement
-const speed = 20
+const speed = 50.0
 var vel = Vector2(0.0, 0.0)
 remotesync var dir = global_c.RIGHT
-var current_action = global_c.IDLE
 
 
 #Jump
-var yspeed = 0.0
 const jumpspeed = 100.0
 const g = 100.0
 remote var in_air = false
 var in_water = false
 var water_contact = null
 
-#Actions
+#Classes
 var team = global_c.TEAM_A
 var bullet_class = null
 var wall_class = null
@@ -46,62 +43,140 @@ var wall_class = null
 #Vars 
 var life = 100.0
 var maxlife = 100.0
-
 var minscale = 0.4
 
+#Actions
 var create_clock = 0.0
 const create_time = 3.0
+var build_finished = false
+
+#Respawn
+var respawning = false
+var respawn_coords = null
+var time2respawn = 0.0
+var spawn_move_speed = 200.0
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	
 	add_to_group("players")
 	update_texture(TEX32) #Set the default texture
 	bullet_class = preload("res://core/bullet.tscn")
 	wall_class = preload("res://core/barrier.tscn")
-	set_process(get_tree().is_network_server())
+	set_process(should_process)
+
 
 func _process(delta):
 	
+	if not respawning:
+		player_controlled(delta)
+	else:
+		move_to_respawn(delta)
+	
+
+func player_controlled(delta):
+	
 	in_air = not is_on_floor()
 	
+	
 	#Process actions
-	if current_action == global_c.LEFT or current_action == global_c.RIGHT:
-		rpc_unreliable("look_dir", current_action)
-		vel.x = speed * current_action
+	if Input.is_action_pressed("ui_left"):
+		rpc_unreliable("look_dir", global_c.LEFT)
+		vel.x = -speed
 		if not in_air:
 			rpc_unreliable("change_anim", "run")
-	elif current_action == global_c.JUMP:
+	elif Input.is_action_pressed("ui_right"):
+		rpc_unreliable("look_dir", global_c.RIGHT)
+		vel.x = speed
+		if not in_air:
+			rpc_unreliable("change_anim", "run")
+	else:
+		vel.x = 0.0
+		#print(anim)
+		if not in_air:
+			rpc_unreliable("change_anim", "idle")
+	
+	#Process jump
+	if Input.is_action_just_pressed("ui_up"):
 		vel.y = -jumpspeed
 		in_air = true
 		rpc("change_anim", "jump_start")
-		set_action(global_c.NOTHING)
-	elif current_action == global_c.IDLE:
-		vel.x = 0.0
-		create_clock = 0.0 #Reset the clock for wall creation
-		rpc("change_anim", "idle")
-	elif current_action == global_c.CHARGE:
+	elif Input.is_action_pressed("ui_down") and not build_finished:
 		vel.x = 0.0
 		create_clock += delta
 		rpc_unreliable("change_anim", "create")
 		#Build a wall or conquest water, depending on situation
 		if create_clock > create_time:
+			build_finished = true
 			if not in_water:
 				build()
 			else:
 				water_contact.set_team(team)
-			set_action(global_c.IDLE)
+	else:
+		create_clock = 0.0
+		build_finished = 0.0
 	
+	#Falling logic
 	if in_air:
 		vel.y += delta * g
 		if vel.y > 5 * delta * g:
-			rpc_unreliable("change_anim", "jump_air")
+				rpc_unreliable("change_anim", "jump_air")
 	else:
 		if vel.y > 5 * delta * g:
 			rpc("change_anim", "jump_landing")
 		vel.y = 0
 	
-	move_and_slide(vel, global_c.FL_NORMAL)
 	
+	#Attack
+	if Input.is_action_just_pressed("shoot"):
+		shoot()
+	
+	
+	#Move and update peers
+	move_and_slide(vel, global_c.FL_NORMAL)
+	send_pos()
+
+
+#Move our player to respawn it 
+func move_to_respawn(delta):
+	#Compute normalize vector to flag and move
+	var dir = position.direction_to(respawn_coords)
+	var dist2 = position.distance_squared_to(respawn_coords)
+	
+	if (dist2 > 10.0):
+		position += spawn_move_speed * delta * dir
+		send_pos()
+	elif (time2respawn <= 0.0):
+			respawning = false
+			scene_manager.current_scene.make_respawn(self.name)
+	
+	time2respawn -= delta
+	
+
+
+#--------------------------------------------------
+# Position and movement
+#--------------------------------------------------
+
+#This pair of functions update the state of the player
+func send_pos():
+	rset_unreliable("in_air", in_air)
+	rpc_unreliable("set_pos", position)
+
+#Update position over the network
+remotesync func set_pos(new_pos):
+	position = new_pos
+
+#Animation controller over the network!
+remotesync func change_anim(new_anim):
+	
+	if $anim.current_animation == "shoot":
+		return
+	
+	if anim != new_anim:
+		anim = new_anim
+		$anim.play(anim)
 
 #Changes where am I looking at in every peer
 remotesync func look_dir(d):
@@ -115,13 +190,12 @@ remotesync func look_dir(d):
 
 #Shoot a bullet in every peer
 func shoot():
-	damage(5.0)
 	rpc("change_anim", "shoot")
 	rpc("create_bullet")
+	damage(5.0)
 
 #Instance a bullet and set its properties
 remotesync func create_bullet():
-	
 	var bullet = bullet_class.instance()
 	bullet.set_dir(dir)
 	bullet.set_team(team)
@@ -129,14 +203,20 @@ remotesync func create_bullet():
 	bullet.position.x += dir * 30
 	scene_manager.current_scene.get_node("bullets").add_child(bullet)
 
+
+#Wall creation
 func build():
 	rpc("create_wall")
+	damage(20.0)
+
 
 remotesync func create_wall():
 	var wall = wall_class.instance()
 	wall.set_team(team)
 	wall.set_pos(position, dir)
 	scene_manager.current_scene.get_node("walls").add_child(wall)
+
+
 
 #--------------------------------------------------
 # Damage or recover the individual over the network
@@ -147,8 +227,14 @@ func damage(d):
 remotesync func do_damage_net(d):
 	life -= d
 	scale = Vector2(1,1) * (minscale + (1.0-minscale) * life / maxlife)
+	
+	#If life is < 0, let's start the respawn!
 	if life <= 0.0:
-		network_manager.disconnect_from_server(int(self.name))
+		print("I died: " + self.name)
+		if get_tree().is_network_server():
+			scene_manager.current_scene.request_respawn(self.name, global_c.DEAD)
+
+
 
 func recover(r):
 	rpc("do_recov_net", r)
@@ -158,36 +244,27 @@ remotesync func do_recov_net(r):
 	print(life)
 	scale = Vector2(1,1) * (minscale + (1.0-minscale) * life / maxlife)
 
-#Configure the team and set the adequate recolor!
-func set_team(new_team):
-	team = new_team
-	if (new_team == global_c.TEAM_B):
-		$sprite.material = preload("res://core/red_material.tres")
-	else:
-		$sprite.material = null
 
-#This pair of functions change the current action.
-#It does it locally (in server) and remotely (in clients)
-func set_action(action):
-	rpc("set_player_action", action)
+func enter_water(water_team, water_name):
+	rpc("in_water_net", water_name)
+	
+	if team == water_team:
+		recover(0.001)
 
-remotesync func set_player_action(action):
-	current_action = action
+func exit_water():
+	rpc("out_water_net")
 
-#This pair of functions update the state of the player
-func send_pos():
-	rset_unreliable("in_air", in_air)
-	rpc_unreliable("set_pos", position)
+remotesync func in_water_net(water_name):
+	in_water = true
+	water_contact = scene_manager.current_scene.get_node("water/" + water_name)
 
-remotesync func set_pos(new_pos):
-	position = new_pos
+remotesync func out_water_net():
+	in_water = false
+	water_contact = null
 
-
-#Animation controller over the network!
-remotesync func change_anim(new_anim):
-	if anim != new_anim:
-		anim = new_anim
-		$anim.play(anim)
+#--------------------------------------------------
+# Team configuration
+#--------------------------------------------------
 
 #Set correct texture and animation properties
 func update_texture(tex):
@@ -199,3 +276,29 @@ func update_texture(tex):
 		$sprite.texture = tex_grandes
 		$sprite.hframes = HF_50
 		$sprite.vframes = VF_50
+
+#Configure the team and set the adequate recolor!
+func set_team(new_team):
+	team = new_team
+	
+	#Set info and request to update it for everybody
+	network_manager.my_info["team"] = team
+	network_manager.request_update_info()
+	
+	if (team == global_c.TEAM_B):
+		set_collision_mask_bit(2, true)
+		$sprite.material = preload("res://core/red_material.tres")
+	else:
+		set_collision_mask_bit(1, true) #Barrier detection
+		$sprite.material = null
+
+
+func _on_player_tree_exiting():
+	print("Deleted node! " + self.name) 
+	network_manager.disconnect_from_server(int(self.name))
+	pass
+
+func _on_player_tree_exited():
+	#print("Deleted node! " + self.name) 
+	#network_manager.disconnect_from_server(int(self.name))
+	pass
