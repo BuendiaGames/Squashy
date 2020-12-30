@@ -172,7 +172,6 @@ material = ExtResource( 3 )
 texture = ExtResource( 4 )
 vframes = 5
 hframes = 4
-frame = 9
 
 [node name="anim" type="AnimationPlayer" parent="."]
 autoplay = "idle"

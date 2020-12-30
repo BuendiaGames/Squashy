@@ -131,6 +131,8 @@ func player_controlled(delta):
 	#Attack
 	if Input.is_action_just_pressed("shoot"):
 		shoot()
+	elif Input.is_action_just_pressed("boom"):
+		boom()
 	
 	
 	#Move and update peers
@@ -141,7 +143,7 @@ func player_controlled(delta):
 #Move our player to respawn it 
 func move_to_respawn(delta):
 	#Compute normalize vector to flag and move
-	var dir = position.direction_to(respawn_coords)
+	dir = position.direction_to(respawn_coords)
 	var dist2 = position.distance_squared_to(respawn_coords)
 	
 	if (dist2 > 10.0):
@@ -191,17 +193,30 @@ remotesync func look_dir(d):
 #Shoot a bullet in every peer
 func shoot():
 	rpc("change_anim", "shoot")
-	rpc("create_bullet")
+	rpc("create_bullet", dir)
 	damage(5.0)
 
+#Just explode!!
+func boom():
+	rpc("change_anim", "boom")
+	var nbullets = int(life / 10.0)
+	var randir = Vector2.ZERO
+	var av_norm = 0.7071
+	for j in range(nbullets):
+		randir = Vector2(randf(), randf()) / av_norm
+		rpc("create_bullet", randir)
+	damage(maxlife)
+
+
 #Instance a bullet and set its properties
-remotesync func create_bullet():
+remotesync func create_bullet(direction):
 	var bullet = bullet_class.instance()
-	bullet.set_dir(dir)
+	bullet.set_dir(direction)
 	bullet.set_team(team)
 	bullet.position = position
 	bullet.position.x += dir * 30
 	scene_manager.current_scene.get_node("bullets").add_child(bullet)
+
 
 
 #Wall creation

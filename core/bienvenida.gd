@@ -48,7 +48,13 @@ func init_server_screen():
 	$background/server/data.text += String(network.gameID )
 	
 	#Wait for the players
-	set_process(true)
+	#set_process(true)
+
+func clean_player_names():
+	$background/server/players.text = "Players: "
+
+func add_player_name(p):
+	$background/server/players.text += p + ", "
 
 
 #Show client data
@@ -68,11 +74,17 @@ func _on_clnt_connect_pressed():
 	
 	#Try to connect
 	if network.connection_request(code, ip) != OK:
-		$background/client/status.text = "Error connecting server"
+		pop("Connection Error. Please check IP\r\nand connection, or try later.")
 	else:
-		$background/client/status.text = "Connected"
+		$background/client.hide()
+		$background/server.show()
+		$background/server/startgame.hide()
+		$background/client/clnt_connect.disabled = true
+		$background/client/debug_switch.disabled = true
 
-
+func pop(message):
+	$background/client/popup.popup(Rect2(100,100,550,200))
+	$background/client/popup/poplabel.text = message
 
 #Starts the game
 func _on_startgame_pressed():

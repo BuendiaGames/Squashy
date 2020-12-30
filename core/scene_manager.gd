@@ -22,6 +22,9 @@ func _deferred_goto_scene(path):
 	# It is now safe to remove the current scene
 	current_scene.free()
 	
+	#We are not anymore in lobby
+	network.in_lobby = false
+	
 	# Load the new scene and get the player
 	var s = ResourceLoader.load(path)
 	var playerscene = preload("res://core/player.tscn")
