@@ -70,9 +70,14 @@ func _ready():
 func _process(delta):
 	
 	if not respawning:
-		player_controlled(delta)
+		if $anim.current_animation != "boom":
+			player_controlled(delta)
+		else:
+			print("kaboom")
 	else:
+		print($anim.current_animation)
 		move_to_respawn(delta)
+		print($sprite.frame)
 	
 
 func player_controlled(delta):
@@ -132,7 +137,7 @@ func player_controlled(delta):
 	if Input.is_action_just_pressed("shoot"):
 		shoot()
 	elif Input.is_action_just_pressed("boom"):
-		boom()
+		init_boom()
 	
 	
 	#Move and update peers
@@ -150,8 +155,8 @@ func move_to_respawn(delta):
 		position += spawn_move_speed * delta * dir
 		send_pos()
 	elif (time2respawn <= 0.0):
-			respawning = false
-			scene_manager.current_scene.make_respawn(self.name)
+		respawning = false
+		scene_manager.current_scene.make_respawn(self.name)
 	
 	time2respawn -= delta
 	
@@ -193,24 +198,33 @@ remotesync func look_dir(d):
 #Shoot a bullet in every peer
 func shoot():
 	rpc("change_anim", "shoot")
-	rpc("create_bullet", dir)
+	rpc("create_bullet", Vector2(dir, 0.0), false)
 	damage(5.0)
 
-#Just explode!!
-func boom():
+#Give the order to start exploding
+func init_boom():
+	rpc("update_texture", TEX50)
 	rpc("change_anim", "boom")
+
+
+#Just explode after animation finishes
+func boom():
 	var nbullets = int(life / 10.0)
 	var randir = Vector2.ZERO
-	var av_norm = 0.7071
 	for j in range(nbullets):
-		randir = Vector2(randf(), randf()) / av_norm
-		rpc("create_bullet", randir)
-	damage(maxlife)
+		randir = Vector2(2*randf()-1, 2*randf()-1)
+		rpc("create_bullet", randir / randir.length_squared(), true)
+		
+	
+	#Damage
+	if get_tree().is_network_server():
+		damage(maxlife)
 
 
 #Instance a bullet and set its properties
-remotesync func create_bullet(direction):
+remotesync func create_bullet(direction, is_explo):
 	var bullet = bullet_class.instance()
+	bullet.is_explosion(is_explo)
 	bullet.set_dir(direction)
 	bullet.set_team(team)
 	bullet.position = position
@@ -256,7 +270,6 @@ func recover(r):
 
 remotesync func do_recov_net(r):
 	life = max(life + r, maxlife)
-	print(life)
 	scale = Vector2(1,1) * (minscale + (1.0-minscale) * life / maxlife)
 
 
@@ -282,7 +295,7 @@ remotesync func out_water_net():
 #--------------------------------------------------
 
 #Set correct texture and animation properties
-func update_texture(tex):
+remotesync func update_texture(tex):
 	if (tex == TEX32):
 		$sprite.texture = tex_iguales
 		$sprite.hframes = HF_32
@@ -314,6 +327,9 @@ func _on_player_tree_exiting():
 	pass
 
 func _on_player_tree_exited():
-	#print("Deleted node! " + self.name) 
-	#network_manager.disconnect_from_server(int(self.name))
 	pass
+
+
+func _on_anim_animation_finished(anim_name):
+	if anim_name == "boom":
+		boom()

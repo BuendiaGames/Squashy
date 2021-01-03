@@ -81,6 +81,9 @@ func _on_clnt_connect_pressed():
 		$background/server/startgame.hide()
 		$background/client/clnt_connect.disabled = true
 		$background/client/debug_switch.disabled = true
+		
+		$background/client/ip.hide()
+		$background/client/code.text += str(network.gameID)
 
 func pop(message):
 	$background/client/popup.popup(Rect2(100,100,550,200))

@@ -111,18 +111,15 @@ func point(pid):
 
 #Request to start a respawn. This is server-side
 func request_respawn(pid, reason):
-	print("requested respawn")
 	rpc("init_respawn", pid)
 	rpc_id(int(pid), "start_move_2_base", reason)
 
 
 #Get the player and hide it. Avoid moving it
 remotesync func init_respawn(pid): 
+
 	var player = get_node("players/" + pid)
 	player.hide()
-	
-	#Return player to its original texture
-	player.update_texture(player.TEX32)
 	
 	#Avoid ANY collision of player while the respawn takes place.
 	call_deferred("switch_col_shape", player)
@@ -148,7 +145,6 @@ remote func start_move_2_base(reason):
 	
 	#Set the time to respawn
 	player.time2respawn = time2spawn[reason]
-	
  
 #Make effective the respawn
 func make_respawn(pid):
@@ -158,7 +154,6 @@ func make_respawn(pid):
 remotesync func respawn(pid):
 	#Redo what was undone last time!
 	var player = get_node("players/" + pid)
-	
 	
 	#Set life to maximum
 	player.life = player.maxlife

@@ -41,7 +41,7 @@ func _on_flag_body_entered(body):
 					cur_level.request_respawn(body.name, global_c.POINT)
 					return 
 
-func _on_flag_body_exited(body):
+func _on_flag_body_exited(_body):
 	if not Engine.editor_hint:
 		if get_tree().is_network_server():
 			flag_busy = false

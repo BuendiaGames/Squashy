@@ -5,7 +5,10 @@ var sender_team = global_c.TEAM_A
 
 var damage = 10.0
 
-const speed = 100
+var dmg_mult_exp = 5.0
+var spd_mult_exp = 3.0
+
+var speed = 100
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -27,10 +30,16 @@ func set_team(team):
 func set_dir(dir):
 	bullet_dir = dir
 
+func is_explosion(explo):
+	if explo:
+		damage *= dmg_mult_exp
+		speed *=  spd_mult_exp
+
 #Move bullet
 func _process(delta):
-	position.x += bullet_dir * speed * delta
+	position += bullet_dir * speed * delta
 	
+
 
 #Damage or recover depending on team
 #COLLISION DETECTION IS DONE SERVER-SIDE
@@ -51,6 +60,11 @@ func _on_bullet_body_entered(body):
 			#Damage wall only if it not our team
 			if sender_team != body.team:
 				body.damage(damage)
+				rpc("free_bullet")
+				return
+		elif body.is_in_group("bullets"):
+			#Delete two bullets of different teams that collide in-air
+			if sender_team != body.team:
 				rpc("free_bullet")
 				return
 
