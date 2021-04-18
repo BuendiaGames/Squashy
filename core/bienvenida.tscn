@@ -1,64 +1,98 @@
-[gd_scene load_steps=8 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://core/bienvenida.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Comfortaa-Bold.ttf" type="DynamicFontData" id=2]
+[ext_resource path="res://graphics/ui/ui_theme.tres" type="Theme" id=3]
+[ext_resource path="res://graphics/ui/ui-logo.png" type="Texture" id=4]
+[ext_resource path="res://fonts/font_04b_big.tres" type="DynamicFont" id=5]
 
 [sub_resource type="DynamicFont" id=1]
-size = 42
-font_data = ExtResource( 2 )
-
-[sub_resource type="DynamicFont" id=2]
-size = 32
-font_data = ExtResource( 2 )
-
-[sub_resource type="DynamicFont" id=3]
-size = 32
-font_data = ExtResource( 2 )
-
-[sub_resource type="DynamicFont" id=4]
-size = 32
-font_data = ExtResource( 2 )
-
-[sub_resource type="DynamicFont" id=5]
 size = 32
 font_data = ExtResource( 2 )
 
 [node name="main" type="Control"]
+theme = ExtResource( 3 )
 script = ExtResource( 1 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="background" type="Panel" parent="."]
 margin_right = 1024.0
 margin_bottom = 600.0
 
+[node name="bichos" type="Control" parent="background"]
+margin_right = 40.0
+margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
 [node name="server" type="Control" parent="background"]
 margin_right = 40.0
 margin_bottom = 40.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="data" type="Label" parent="background/server"]
-margin_left = 319.14
-margin_top = 20.1062
-margin_right = 461.14
-margin_bottom = 191.106
-custom_fonts/font = SubResource( 1 )
+margin_left = 25.4718
+margin_top = 23.1028
+margin_right = 167.472
+margin_bottom = 194.103
+theme = ExtResource( 3 )
 text = "IP:
 
 Code:"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
-[node name="players" type="Label" parent="background/server"]
-margin_left = 50.3139
-margin_top = 238.284
-margin_right = 192.314
-margin_bottom = 409.284
-custom_fonts/font = SubResource( 2 )
-text = "Players: 
+[node name="team1" type="VBoxContainer" parent="background/server"]
+margin_left = 342.879
+margin_top = 226.998
+margin_right = 403.879
+margin_bottom = 289.998
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="teamname" type="Label" parent="background/server/team1"]
+margin_right = 61.0
+margin_bottom = 41.0
+theme = ExtResource( 3 )
+text = "Blue
 "
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="team2" type="VBoxContainer" parent="background/server"]
+margin_left = 622.261
+margin_top = 223.824
+margin_right = 683.261
+margin_bottom = 286.824
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="teamname" type="Label" parent="background/server/team2"]
+margin_right = 61.0
+margin_bottom = 63.0
+theme = ExtResource( 3 )
+text = "Red
+
+"
+__meta__ = {
+"_edit_use_anchors_": false
+}
 
 [node name="status" type="Label" parent="background/server"]
-margin_left = 158.707
-margin_top = 553.462
-margin_right = 870.707
-margin_bottom = 724.462
-custom_fonts/font = SubResource( 1 )
+margin_left = 268.024
+margin_top = 565.235
+margin_right = 980.024
+margin_bottom = 736.235
+theme = ExtResource( 3 )
 text = "Connected. Please wait to start..."
 __meta__ = {
 "_edit_use_anchors_": false
@@ -69,7 +103,6 @@ margin_left = 413.754
 margin_top = 509.73
 margin_right = 617.754
 margin_bottom = 552.73
-custom_fonts/font = SubResource( 3 )
 text = "Start Game"
 __meta__ = {
 "_edit_use_anchors_": false
@@ -79,96 +112,132 @@ __meta__ = {
 visible = false
 margin_right = 40.0
 margin_bottom = 40.0
-
-[node name="name" type="Label" parent="background/client"]
-margin_left = 80.0
-margin_top = 60.0
-margin_right = 222.0
-margin_bottom = 231.0
-custom_fonts/font = SubResource( 1 )
-text = "Nick:"
-
-[node name="name_edit" type="LineEdit" parent="background/client"]
-margin_left = 270.0
-margin_top = 65.0
-margin_right = 490.0
-margin_bottom = 115.0
-custom_fonts/font = SubResource( 4 )
-text = "a"
-max_length = 15
-clear_button_enabled = true
-
-[node name="code" type="Label" parent="background/client"]
-margin_left = 80.0
-margin_top = 165.0
-margin_right = 222.0
-margin_bottom = 336.0
-custom_fonts/font = SubResource( 1 )
-text = "Code:"
-
-[node name="code_edit" type="LineEdit" parent="background/client"]
-margin_left = 270.0
-margin_top = 165.0
-margin_right = 490.0
-margin_bottom = 215.0
-custom_fonts/font = SubResource( 4 )
-max_length = 15
-clear_button_enabled = true
-
-[node name="ip" type="Label" parent="background/client"]
-margin_left = 80.0
-margin_top = 265.0
-margin_right = 222.0
-margin_bottom = 436.0
-custom_fonts/font = SubResource( 1 )
-text = "IP:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
 
-[node name="ip_edit" type="LineEdit" parent="background/client"]
-margin_left = 270.0
-margin_top = 265.0
-margin_right = 490.0
-margin_bottom = 315.0
-custom_fonts/font = SubResource( 4 )
-text = "127.0.0.1"
+[node name="vbox" type="VBoxContainer" parent="background/client"]
+margin_left = 341.0
+margin_top = 200.0
+margin_right = 682.0
+margin_bottom = 470.0
+custom_constants/separation = 12
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="name" type="Label" parent="background/client/vbox"]
+margin_right = 341.0
+margin_bottom = 25.0
+custom_fonts/font = ExtResource( 5 )
+text = "Nick:"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="name_edit" type="LineEdit" parent="background/client/vbox"]
+margin_top = 37.0
+margin_right = 341.0
+margin_bottom = 67.0
+rect_min_size = Vector2( 0, 30 )
+theme = ExtResource( 3 )
+text = "a"
+align = 1
 max_length = 15
 clear_button_enabled = true
 
-[node name="clnt_connect" type="Button" parent="background/client"]
-margin_left = 172.199
-margin_top = 385.057
-margin_right = 336.199
-margin_bottom = 428.057
-custom_fonts/font = SubResource( 3 )
+[node name="code" type="Label" parent="background/client/vbox"]
+margin_top = 79.0
+margin_right = 341.0
+margin_bottom = 104.0
+custom_fonts/font = ExtResource( 5 )
+text = "Code:"
+align = 1
+
+[node name="code_edit" type="LineEdit" parent="background/client/vbox"]
+margin_top = 116.0
+margin_right = 341.0
+margin_bottom = 146.0
+rect_min_size = Vector2( 0, 30 )
+theme = ExtResource( 3 )
+align = 1
+max_length = 15
+clear_button_enabled = true
+
+[node name="ip" type="Label" parent="background/client/vbox"]
+margin_top = 158.0
+margin_right = 341.0
+margin_bottom = 183.0
+custom_fonts/font = ExtResource( 5 )
+text = "IP:"
+align = 1
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="ip_edit" type="LineEdit" parent="background/client/vbox"]
+margin_top = 195.0
+margin_right = 341.0
+margin_bottom = 225.0
+rect_min_size = Vector2( 0, 30 )
+theme = ExtResource( 3 )
+text = "127.0.0.1"
+align = 1
+max_length = 15
+clear_button_enabled = true
+
+[node name="vbox2" type="VBoxContainer" parent="background/client"]
+margin_left = 380.0
+margin_top = 450.0
+margin_right = 630.0
+margin_bottom = 580.0
+custom_constants/separation = 10
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="clnt_connect" type="Button" parent="background/client/vbox2"]
+margin_right = 250.0
+margin_bottom = 40.0
+rect_min_size = Vector2( 0, 40 )
 text = "Connect!"
 
-[node name="debug_switch" type="Button" parent="background/client"]
-margin_left = 174.591
-margin_top = 456.807
-margin_right = 338.591
-margin_bottom = 499.807
-custom_fonts/font = SubResource( 3 )
-text = "Switch to server"
+[node name="debug_switch" type="Button" parent="background/client/vbox2"]
+margin_top = 50.0
+margin_right = 250.0
+margin_bottom = 90.0
+rect_min_size = Vector2( 0, 40 )
+text = "Create Server"
 
 [node name="popup" type="PopupDialog" parent="background/client"]
-visible = true
 margin_left = 69.4117
 margin_top = 46.7194
 margin_right = 343.412
 margin_bottom = 159.719
+theme = ExtResource( 3 )
 
 [node name="poplabel" type="Label" parent="background/client/popup"]
 margin_left = 26.3027
 margin_top = 12.8701
 margin_right = 168.303
 margin_bottom = 183.87
-custom_fonts/font = SubResource( 5 )
+custom_fonts/font = SubResource( 1 )
 text = "IP:"
 __meta__ = {
 "_edit_use_anchors_": false
 }
+
+[node name="logo" type="TextureRect" parent="."]
+margin_left = 341.0
+margin_top = 20.0
+margin_right = 744.0
+margin_bottom = 213.0
+rect_scale = Vector2( 0.85, 0.85 )
+texture = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
 [connection signal="pressed" from="background/server/startgame" to="." method="_on_startgame_pressed"]
-[connection signal="pressed" from="background/client/clnt_connect" to="." method="_on_clnt_connect_pressed"]
-[connection signal="pressed" from="background/client/debug_switch" to="." method="_on_debug_switch_pressed"]
+[connection signal="pressed" from="background/client/vbox2/clnt_connect" to="." method="_on_clnt_connect_pressed"]
+[connection signal="pressed" from="background/client/vbox2/debug_switch" to="." method="_on_debug_switch_pressed"]

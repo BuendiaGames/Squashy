@@ -7,7 +7,9 @@
 extents = Vector2( 23.9474, 7.93407 )
 
 [node name="movingplatform" type="KinematicBody2D"]
+input_pickable = true
 script = ExtResource( 1 )
+dist_2_move = Vector2( 100, 0 )
 
 [node name="pltex" type="Sprite" parent="."]
 texture = ExtResource( 2 )

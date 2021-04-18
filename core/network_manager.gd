@@ -9,6 +9,9 @@ var server_ip = ""
 #Our peer 
 var peer = null
 
+#Current number of people in team A
+var nteamA = 0
+
 #Information about all peers
 remote var player_info = {}
 
@@ -51,7 +54,8 @@ master func check_game_id(gid, peer_info):
 	
 	if int(gameID) == int(gid):
 		print("Good connection")
-		player_info[id] = peer_info #For now, only NICK is inside
+		player_info[id] = peer_info
+		select_team(id)
 		rset_id(id, "gid_success", true)
 		share_player_info()
 		rpc("update_player_list_lobby")
@@ -59,6 +63,26 @@ master func check_game_id(gid, peer_info):
 		print("ERROR: bad code")
 		rset_id(id, "gid_success", false)
 		disconnect_from_server(id)
+
+#Default selection of team for new players joining the lobby
+#Just try to make both teams to have same people
+func select_team(id):
+	#The server is a player itself, so remove it
+	var nplayers = len(player_info) - 1
+
+	#A by default
+	if (nplayers == 0):
+		player_info[id]["team"] = global_c.TEAM_A
+		nteamA += 1
+	#Then compensate
+	else:
+		var excess_tA = nplayers - nteamA
+		if excess_tA <= 0:
+			player_info[id]["team"] = global_c.TEAM_B
+		else:
+			player_info[id]["team"] = global_c.TEAM_A
+			nteamA += 1
+
 
 #Set up the server
 func make_server():
@@ -68,6 +92,9 @@ func make_server():
 	#Also check server was created succesfully
 	peer = NetworkedMultiplayerENet.new()
 	err = peer.create_server(SERVER_PORT, MAX_PLAYERS)
+	
+	print("Port: " + str(SERVER_PORT) )
+	
 	if err != OK:
 		print("ERROR CREATING SERVER")
 	else:
@@ -154,7 +181,9 @@ remotesync func update_player_list_lobby():
 	lobby.clean_player_names()
 	print(player_info)
 	for key in player_info:
-		lobby.add_player_name(player_info[key]["nick"])
+		lobby.add_player_name(player_info[key])
+
+
 
 
 #Set the player info for everybody
