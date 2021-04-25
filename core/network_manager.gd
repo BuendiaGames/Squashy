@@ -178,10 +178,10 @@ func _on_server_disconnection():
 #game to start.
 remotesync func update_player_list_lobby():
 	var lobby = get_tree().root.get_node("main")
-	lobby.clean_player_names()
+	#lobby.clean_player_names()
 	print(player_info)
 	for key in player_info:
-		lobby.add_player_name(player_info[key])
+		lobby.add_player_name(key, player_info[key])
 
 
 

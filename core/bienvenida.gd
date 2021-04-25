@@ -49,6 +49,7 @@ func init_server_screen():
 	var ips = IP.get_local_addresses()
 	var local_ip = ""
 	print(ips)
+	
 	#Get the public IP of this computer
 	for ip in ips:
 		if "127.0" in ip:
@@ -62,28 +63,55 @@ func init_server_screen():
 	network.gameID = randi() % 100000
 	$background/server/data.text += String(network.gameID )
 	
-	#Wait for the players
-	#set_process(true)
 
-func clean_player_names():
-	$background/server/pl_team1.text = "Blue Team\n"
-	$background/server/pl_team2.text = "Red  Team\n"
-
+#Add player name while waiting in the Lobby
 func add_player_name(id, peer_info):
+	
+	#Set up label
 	var nick = peer_info["nick"]
 	var team = peer_info["team"]
 	
 	var pl_label = Label.new()
+	pl_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	pl_label.text = nick
+	pl_label.name = str(id)
+
 	
-	#TODO ADD CHANGE TEAM CLICK EVENT FOR SERVER
+	#For the server, add possibility to change teams
+	if get_tree().is_network_server():
+		pl_label.connect("gui_input", self, "communicate_change_team", [id, peer_info])
 	
+	#Create label for everybody
 	if team == global_c.TEAM_A:
 		$background/server/team1.add_child(pl_label)
-		#$background/server/pl_team1.text += nick + "\n"
 	else:
 		$background/server/team2.add_child(pl_label)
-		#$background/server/pl_team2.text += nick + "\n"
+
+
+#Communicate the change of team to all the players
+func communicate_change_team(event, id, peer_info):
+	if (event is InputEventMouseButton && event.pressed && event.button_index == 1):
+		rpc("change_team", id, peer_info)
+
+#Do the actual change of team locally
+remotesync func change_team(id, peer_info):
+	
+	var team = peer_info["team"] 
+	var pl_label = null
+	
+	#Get the label and change its parent depending on team
+	if team == global_c.TEAM_A:
+		pl_label = get_node("background/server/team1/" + str(id))
+		peer_info["team"] = global_c.TEAM_B 
+		$background/server/team1.remove_child(pl_label)
+		$background/server/team2.add_child(pl_label)
+	else:
+		pl_label = get_node("background/server/team2/" + str(id))
+		peer_info["team"] = global_c.TEAM_A
+		$background/server/team2.remove_child(pl_label)
+		$background/server/team1.add_child(pl_label)
+	
+
 
 #Show client data
 func init_client_screen():
