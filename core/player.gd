@@ -22,14 +22,14 @@ const tex_grandes = preload("res://graphics/character/spritesheet_grandes.png")
 var anim = "idle"
 
 #Horizontal movement
-const speed = 50.0
+const speed = 110.0
 var vel = Vector2(0.0, 0.0)
 remotesync var dir = global_c.RIGHT
 
 
 #Jump
-const jumpspeed = 100.0
-const g = 100.0
+const jumpspeed = 500.0
+const g = 1000.0
 remote var in_air = false
 var in_water = false
 var water_contact = null
@@ -135,7 +135,7 @@ func player_controlled(delta):
 	
 	#Attack
 	if Input.is_action_just_pressed("shoot"):
-		shoot()
+		init_shoot()
 	elif Input.is_action_just_pressed("boom"):
 		init_boom()
 	
@@ -195,29 +195,36 @@ remotesync func look_dir(d):
 # Create bullets, walls and conquest water
 #--------------------------------------------------
 
-#Shoot a bullet in every peer
+#Prepare to shoot, creating a bullet
+#triggered by animation_finished
+
+func init_shoot():
+	rpc("change_anim", "shoot") 
+
+#Shoot a bullet. This is executed in every peer, since the 
+#change of anim that triggers this was called on the network
 func shoot():
-	rpc("change_anim", "shoot")
-	rpc("create_bullet", Vector2(dir, 0.0), false)
+	create_bullet(Vector2(dir, 0.0), false)
 	damage(5.0)
 
-#Give the order to start exploding
+#Give the order to start exploding, creating explosion
+#at animation_finished
 func init_boom():
 	rpc("update_texture", TEX50)
 	rpc("change_anim", "boom")
 
 
-#Just explode after animation finishes
+#Just explode after animation finishes. This is called
+#only in server, in order to generate exactly the same random
+#bullets for all peers
 func boom():
-	var nbullets = int(life / 10.0)
-	var randir = Vector2.ZERO
-	for j in range(nbullets):
-		randir = Vector2(2*randf()-1, 2*randf()-1)
-		rpc("create_bullet", randir / randir.length_squared(), true)
-		
-	
-	#Damage
 	if get_tree().is_network_server():
+		var nbullets = int(life / 10.0)
+		var randir = Vector2.ZERO
+		for j in range(nbullets):
+			randir = Vector2(2*randf()-1, 2*randf()-1)
+			rpc("create_bullet", randir / randir.length_squared(), true)
+	
 		damage(maxlife)
 
 
@@ -228,7 +235,8 @@ remotesync func create_bullet(direction, is_explo):
 	bullet.set_dir(direction)
 	bullet.set_team(team)
 	bullet.position = position
-	bullet.position.x += dir * 30
+	bullet.position.x += dir*10
+	bullet.position.y += 10
 	scene_manager.current_scene.get_node("bullets").add_child(bullet)
 
 
@@ -328,8 +336,3 @@ func _on_player_tree_exiting():
 
 func _on_player_tree_exited():
 	pass
-
-
-func _on_anim_animation_finished(anim_name):
-	if anim_name == "boom":
-		boom()

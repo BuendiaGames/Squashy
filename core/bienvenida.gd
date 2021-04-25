@@ -184,6 +184,8 @@ func create_bichos():
 func _process(delta):
 	
 	var bicho = null
+	
+	#Beautiful, colored background with squashies around
 	for n in range(n_bichos):
 		bicho = get_node("background/bichos/bicho" + str(n))
 		bicho.position.x += delta * bichos_speed[n]

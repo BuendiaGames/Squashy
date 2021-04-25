@@ -8,7 +8,7 @@ var damage = 10.0
 var dmg_mult_exp = 5.0
 var spd_mult_exp = 3.0
 
-var speed = 100
+var speed = 250
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -30,6 +30,7 @@ func set_team(team):
 func set_dir(dir):
 	bullet_dir = dir
 
+#Increase damage for bullets coming from explosion
 func is_explosion(explo):
 	if explo:
 		damage *= dmg_mult_exp
