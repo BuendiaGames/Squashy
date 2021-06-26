@@ -49,13 +49,15 @@ func _ready():
 	
 	direction = dist_2_move.normalized()
 	
+	set_process(false)
+	
 	if Engine.editor_hint:
 		update()
-		set_process(false)
+		set_physics_process(false)
 	else:
-		set_process(true)
+		set_physics_process(true)
 
-func _process(delta):
+func _physics_process(delta):
 	position += delta * direction * speed
 	
 	if position.distance_squared_to(target) <= 5:

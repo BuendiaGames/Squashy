@@ -1,5 +1,9 @@
 extends Control
 
+#CREAR GRAFICOS PARA EL AGUA E IMPLEMENTARLOS
+#IMPLEMENTAR BACKGROUND
+#CREAR TILEMAP (POSIBLEMENTE)
+
 const code_digits = 5
 
 #Network manager

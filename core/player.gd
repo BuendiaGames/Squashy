@@ -64,10 +64,12 @@ func _ready():
 	update_texture(TEX32) #Set the default texture
 	bullet_class = preload("res://core/bullet.tscn")
 	wall_class = preload("res://core/barrier.tscn")
-	set_process(should_process)
+	set_process(false)
+	set_physics_process(should_process)
 
 
-func _process(delta):
+
+func _physics_process(delta):
 	
 	if not respawning:
 		if $anim.current_animation != "boom":
@@ -84,6 +86,9 @@ func player_controlled(delta):
 	
 	in_air = not is_on_floor()
 	
+	#Snap to the floor 10 pixels when we are 
+	#not jumping, to avoid jiggly platforms
+	var snap = Vector2(0.0, 10)
 	
 	#Process actions
 	if Input.is_action_pressed("ui_left"):
@@ -98,7 +103,6 @@ func player_controlled(delta):
 			rpc_unreliable("change_anim", "run")
 	else:
 		vel.x = 0.0
-		#print(anim)
 		if not in_air:
 			rpc_unreliable("change_anim", "idle")
 	
@@ -106,6 +110,7 @@ func player_controlled(delta):
 	if Input.is_action_just_pressed("ui_up"):
 		vel.y = -jumpspeed
 		in_air = true
+		snap.y = 0 #Free the snap 
 		rpc("change_anim", "jump_start")
 	elif Input.is_action_pressed("ui_down") and not build_finished:
 		vel.x = 0.0
@@ -130,7 +135,7 @@ func player_controlled(delta):
 	else:
 		if vel.y > 5 * delta * g:
 			rpc("change_anim", "jump_landing")
-		vel.y = 0
+		vel.y = get_floor_velocity().y
 	
 	
 	#Attack
@@ -141,7 +146,7 @@ func player_controlled(delta):
 	
 	
 	#Move and update peers
-	move_and_slide(vel, global_c.FL_NORMAL)
+	move_and_slide_with_snap(vel, snap, global_c.FL_NORMAL)
 	send_pos()
 
 

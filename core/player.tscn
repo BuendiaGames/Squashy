@@ -3,7 +3,7 @@
 [ext_resource path="res://core/player.gd" type="Script" id=1]
 [ext_resource path="res://fonts/Comfortaa-Bold.ttf" type="DynamicFontData" id=2]
 [ext_resource path="res://core/red_material.tres" type="Material" id=3]
-[ext_resource path="res://graphics/character/spritesheet_grandes.png" type="Texture" id=4]
+[ext_resource path="res://graphics/character/sheet_iguales.png" type="Texture" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 16, 16 )
@@ -202,9 +202,8 @@ __meta__ = {
 [node name="sprite" type="Sprite" parent="."]
 material = ExtResource( 3 )
 texture = ExtResource( 4 )
-vframes = 2
-hframes = 5
-frame = 4
+vframes = 5
+hframes = 4
 
 [node name="anim" type="AnimationPlayer" parent="."]
 autoplay = "idle"
