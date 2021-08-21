@@ -1,10 +1,10 @@
 [gd_scene load_steps=4 format=2]
 
 [ext_resource path="res://core/movingplatform.gd" type="Script" id=1]
-[ext_resource path="res://graphics/tiles/sheet.png" type="Texture" id=2]
+[ext_resource path="res://graphics/tiles/sq_tileset.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 23.9474, 7.93407 )
+extents = Vector2( 15.8664, 7.93407 )
 
 [node name="movingplatform" type="KinematicBody2D"]
 input_pickable = true
@@ -14,7 +14,7 @@ dist_2_move = Vector2( 100, 0 )
 [node name="pltex" type="Sprite" parent="."]
 texture = ExtResource( 2 )
 region_enabled = true
-region_rect = Rect2( 112, 0, 48, 16 )
+region_rect = Rect2( 32, 32, 32, 16 )
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource( 1 )

@@ -4,11 +4,15 @@ extends Node2D
 var selfID = null
 var localplayer = null
 
+#Short for UI
+var my_UI = null
 
 #Points & stats
 var points_A
 var points_B
 var points_per_player = {}
+
+var finished_match = false
 
 #Flags
 var flag_A = null
@@ -39,6 +43,7 @@ func _ready():
 	camera.make_current()
 	
 	
+	
 	#Server!
 	if selfID == 1: 
 		add_child(camera)
@@ -50,6 +55,9 @@ func _ready():
 	#Get the flag nodes, will be useful for respawns
 	flag_A = get_node("flags/flagA")
 	flag_B = get_node("flags/flagB")
+	
+	#UI
+	my_UI = get_node("uilayer/UI")
 
 #Who is the player associated to this local machine
 func get_main_player():
@@ -97,21 +105,32 @@ func point(pid):
 	#But in all dicts it is an integer
 	pid = int(pid) 
 	
-	print("Point by " + str(pid))
 	points_per_player[pid] += 1
 	var pteam = network_manager.player_info[pid]["team"]
 	
 	if pteam == global_c.TEAM_A:
 		points_A += 1
+		rpc("update_UI", global_c.TEAM_A, points_A)
 	else:
 		points_B += 1
+		rpc("update_UI", global_c.TEAM_B, points_B)
 
+#Call to update the UI labels
+remotesync func update_UI(team, points):
+	my_UI.update_points(team, points)
+
+#Set all the local timers to start synchronously
+#This is called from the network manager when all peers are ready
+func start_time():
+	$timer.start()
+
+func get_time_left():
+	return $timer.time_left
 
 # Respawn --------------------------------------
 
 #Request to start a respawn. This is server-side
 func request_respawn(pid, reason):
-	print("requested respawn")
 	rpc("init_respawn", pid)
 	rpc_id(int(pid), "start_move_2_base", reason)
 
@@ -166,3 +185,17 @@ remotesync func respawn(pid):
 	player.show()
 	
 	call_deferred("switch_col_shape", player)
+
+
+#Victory conditions --- 
+
+func _on_timer_timeout():
+	if selfID == 1:
+		rpc("victory")
+
+remotesync func victory():
+	finished_match = true
+	get_tree().paused = true
+	
+	if selfID == 1:
+		scene_manager.politely_ask_go_to_menu()

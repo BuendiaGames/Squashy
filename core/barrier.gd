@@ -35,6 +35,7 @@ func set_pos(p, dir):
 func damage(d):
 	rpc("do_damage_net", d)
 
+#Inform peers about wall damage
 remotesync func do_damage_net(d):
 	life -= d
 	if life <= 0:

@@ -45,22 +45,26 @@ func _ready():
 	get_tree().connect("connection_failed", self, "_connection_failed")
 	get_tree().connect("server_disconnected", self, "_on_server_disconnection")
 
+#Leave all variables to the initial values
+func clear():
+	in_lobby = true
+	player_info = {}
+	nteamA = 0
+	gid_success = false
 
 #Check if our gameID is the same as the server ID
 master func check_game_id(gid, peer_info):
 	
 	var id = get_tree().get_rpc_sender_id()
-	print(id)
 	
 	if int(gameID) == int(gid):
-		print("Good connection")
 		player_info[id] = peer_info
 		select_team(id)
+		#If success, share our data with server
 		rset_id(id, "gid_success", true)
 		share_player_info()
 		rpc("update_player_list_lobby")
 	else:
-		print("ERROR: bad code")
 		rset_id(id, "gid_success", false)
 		disconnect_from_server(id)
 
@@ -69,7 +73,7 @@ master func check_game_id(gid, peer_info):
 func select_team(id):
 	#The server is a player itself, so remove it
 	var nplayers = len(player_info) - 1
-
+	
 	#A by default
 	if (nplayers == 0):
 		player_info[id]["team"] = global_c.TEAM_A
@@ -82,7 +86,6 @@ func select_team(id):
 		else:
 			player_info[id]["team"] = global_c.TEAM_A
 			nteamA += 1
-
 
 #Set up the server
 func make_server():
@@ -121,9 +124,9 @@ func connection_request(code, ip):
 
 #Terminates the connection from server
 func disconnect_from_server(id):
-	if get_tree().is_network_server():
-		get_tree().network_peer.disconnect_peer(id, true)
-	
+	if get_tree().network_peer != null:
+		if get_tree().is_network_server():
+			get_tree().network_peer.disconnect_peer(id, true)
 
 
 
@@ -143,14 +146,20 @@ func _player_connected(id):
 func _player_disconnected(id):
 	#Erase information about this player
 	player_info.erase(id)
-	#Eliminate it from lobby list
 	
+	#Eliminate it from lobby list
 	if in_lobby:
 		update_player_list_lobby()
 	else:
-		pass #TODO notify users in-game
+		#If no more players remaining, 
+		#then clear network and return to menu
+		if len(player_info) == 0:
+			clear()
+			get_tree().set_network_peer(null)
+			scene_manager._deferred_goto_menu()
 	
 	print("Bye " + str(id))
+
 
 #Once connected, validate GID with the one stored at server
 func _connection_ok():
@@ -169,6 +178,10 @@ func _on_server_disconnection():
 	if not gid_success:
 		get_tree().root.get_node("main").pop("Error: code incorrect.\r\nDisconnected.")
 	get_tree().set_network_peer(null)
+	
+	if not in_lobby:
+		clear()
+		scene_manager._deferred_goto_menu()
 
 # ---------------------------------------------------- #
 # Game start synchro
@@ -178,12 +191,8 @@ func _on_server_disconnection():
 #game to start.
 remotesync func update_player_list_lobby():
 	var lobby = get_tree().root.get_node("main")
-	#lobby.clean_player_names()
-	print(player_info)
 	for key in player_info:
 		lobby.add_player_name(key, player_info[key])
-
-
 
 
 #Set the player info for everybody
@@ -203,9 +212,7 @@ remote func update_info(new_info):
 	#Should be always true due to rpc_id=1, but double-check it
 	var id = get_tree().get_rpc_sender_id()
 	print("Request from " + str(id) + ": change player_info to")
-	print(new_info)
 	player_info[id] = new_info
-	print(player_info[id])
 	share_player_info()
 
 
@@ -228,7 +235,6 @@ mastersync func peer_scene_loaded(peer_id):
 	
 	peers_ready.append(peer_id)
 	
-	
 	#Check that all players + server are connected
 	if len(peers_ready) == len(player_info.keys())+1:
 		rpc("start_game")
@@ -237,6 +243,8 @@ mastersync func peer_scene_loaded(peer_id):
 remotesync func start_game():
 	print("Game ready to start!")
 	get_tree().paused = false
+	peers_ready = []
+	scene_manager.current_scene.start_time()
 
 
 

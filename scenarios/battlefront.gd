@@ -97,7 +97,6 @@ func point(pid):
 	#But in all dicts it is an integer
 	pid = int(pid) 
 	
-	print("Point by " + str(pid))
 	points_per_player[pid] += 1
 	var pteam = network_manager.player_info[pid]["team"]
 	

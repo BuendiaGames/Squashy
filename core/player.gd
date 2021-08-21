@@ -30,7 +30,7 @@ remotesync var dir = global_c.RIGHT
 #Jump
 const jumpspeed = 500.0
 const g = 1000.0
-remote var in_air = false
+var in_air = false
 var in_water = false
 var water_contact = null
 
@@ -75,11 +75,9 @@ func _physics_process(delta):
 		if $anim.current_animation != "boom":
 			player_controlled(delta)
 		else:
-			print("kaboom")
+			pass
 	else:
-		print($anim.current_animation)
 		move_to_respawn(delta)
-		print($sprite.frame)
 	
 
 func player_controlled(delta):
@@ -107,7 +105,7 @@ func player_controlled(delta):
 			rpc_unreliable("change_anim", "idle")
 	
 	#Process jump
-	if Input.is_action_just_pressed("ui_up"):
+	if Input.is_action_just_pressed("ui_up") and not in_air:
 		vel.y = -jumpspeed
 		in_air = true
 		snap.y = 0 #Free the snap 
@@ -121,8 +119,6 @@ func player_controlled(delta):
 			build_finished = true
 			if not in_water:
 				build()
-			else:
-				water_contact.set_team(team)
 	else:
 		create_clock = 0.0
 		build_finished = 0.0
@@ -173,11 +169,11 @@ func move_to_respawn(delta):
 
 #This pair of functions update the state of the player
 func send_pos():
-	rset_unreliable("in_air", in_air)
 	rpc_unreliable("set_pos", position)
 
 #Update position over the network
 remotesync func set_pos(new_pos):
+	in_air = in_air
 	position = new_pos
 
 #Animation controller over the network!
@@ -272,7 +268,6 @@ remotesync func do_damage_net(d):
 	
 	#If life is < 0, let's start the respawn!
 	if life <= 0.0:
-		print("I died: " + self.name)
 		if get_tree().is_network_server():
 			scene_manager.current_scene.request_respawn(self.name, global_c.DEAD)
 
@@ -286,11 +281,9 @@ remotesync func do_recov_net(r):
 	scale = Vector2(1,1) * (minscale + (1.0-minscale) * life / maxlife)
 
 
-func enter_water(water_team, water_name):
+func enter_water(water_name):
 	rpc("in_water_net", water_name)
-	
-	if team == water_team:
-		recover(0.001)
+	recover(0.001)
 
 func exit_water():
 	rpc("out_water_net")
@@ -333,11 +326,11 @@ func set_team(new_team):
 		set_collision_mask_bit(1, true) #Barrier detection
 		$sprite.material = null
 
-
+#Check if a player was disconnected mid-match
 func _on_player_tree_exiting():
-	print("Deleted node! " + self.name) 
-	network_manager.disconnect_from_server(int(self.name))
-	pass
+	if not scene_manager.current_scene.finished_match:
+		network_manager.disconnect_from_server(int(self.name))
+
 
 func _on_player_tree_exited():
 	pass

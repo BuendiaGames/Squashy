@@ -18,9 +18,9 @@ func set_plstyle(plstyle):
 	platform_style = plstyle
 	match plstyle:
 		pltypes.Grass:
-			$pltex.region_rect = Rect2(112, 0, 48, 16)
+			$pltex.region_rect = Rect2(32, 32, 32, 16)
 		pltypes.Rock:
-			$pltex.region_rect = Rect2(112, 32, 48, 16)
+			$pltex.region_rect = Rect2(32, 96, 32, 16)
 
 func get_plstyle():
 	return platform_style

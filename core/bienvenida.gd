@@ -1,8 +1,6 @@
 extends Control
 
-#CREAR GRAFICOS PARA EL AGUA E IMPLEMENTARLOS
-#IMPLEMENTAR BACKGROUND
-#CREAR TILEMAP (POSIBLEMENTE)
+#SFX / Musica 
 
 const code_digits = 5
 
@@ -21,6 +19,7 @@ var bichos_maxang = 4.0
 var n_bichos = 12
 
 func _ready():
+	get_tree().paused = false
 	
 	rng.randomize()
 	
@@ -29,17 +28,19 @@ func _ready():
 	manager = scene_manager
 	
 	#And then choose client or server
+	init_client_screen()
+	
+	#Do not give the possibility to convert into server in HTML5
 	if OS.get_name() == "HTML5":
-		init_client_screen()
-	else:
-		init_client_screen()
-		#network.make_server()
+		$background/client/vbox2/debug_switch.disabled = true
+		$background/client/vbox2/debug_switch.hide()
 	
 	#The process controls movement of background...
 	create_bichos()
 	set_process(true)
 
 func init_server_screen():
+	
 	randomize()
 	
 	#Show server data
@@ -52,7 +53,6 @@ func init_server_screen():
 	#Get the array of local IPs
 	var ips = IP.get_local_addresses()
 	var local_ip = ""
-	print(ips)
 	
 	#Get the public IP of this computer
 	for ip in ips:
@@ -62,9 +62,11 @@ func init_server_screen():
 	#Write it...
 	$background/server/data.text += local_ip
 	
-	#Generate a random game ID
+	#Generate a random game ID if not done yet
+	if network.gameID == null or len(network.player_info) == 0:
+		network.gameID = randi() % 100000
+	
 	$background/server/data.text += "\r\nCode:  "
-	network.gameID = randi() % 100000
 	$background/server/data.text += String(network.gameID )
 	
 
@@ -159,11 +161,10 @@ func _on_debug_switch_pressed():
 	init_server_screen()
 	network.make_server()
 
+#Background madness initialization
 func create_bichos():
 	
 	var bicho = null
-
-	
 	for n in range(n_bichos):
 		bicho = Sprite.new()
 		bicho.name = "bicho" + str(n)
@@ -185,6 +186,7 @@ func create_bichos():
 		bichos_angsp.append(rng.randf_range(-bichos_maxang, bichos_maxang))
 		$background/bichos.add_child(bicho)
 
+#Background madness update
 func _process(delta):
 	
 	var bicho = null

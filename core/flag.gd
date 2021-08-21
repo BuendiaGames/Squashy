@@ -29,7 +29,6 @@ func _ready():
 		cur_level = scene_manager.current_scene
 
 #Give a point to the Squashy reaching the goal
-
 func _on_flag_body_entered(body):
 	if not Engine.editor_hint:
 		if get_tree().is_network_server():
@@ -43,5 +42,6 @@ func _on_flag_body_entered(body):
 
 func _on_flag_body_exited(_body):
 	if not Engine.editor_hint:
-		if get_tree().is_network_server():
-			flag_busy = false
+		if get_tree().network_peer != null:
+			if get_tree().is_network_server():
+				flag_busy = false
